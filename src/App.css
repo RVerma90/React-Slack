@@ -84,7 +84,7 @@ body {
 
 .main {
   height: 100%;
-  position: absolute;
+  position: fixed;
   flex: 1;
 }
 
@@ -138,10 +138,11 @@ body {
 
 .message-history {
   margin-left: 220px;
+  padding-bottom: 64px;
   overflow-y: auto;
   overflow-x: hidden;
   height: 100%;
-  padding: 0 18px 1rem 1.5rem;
+  padding: 0 18px 128px 1.5rem;
 }
 
 .online-users {
