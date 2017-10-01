@@ -16,6 +16,8 @@ class Messages extends Component {
   }
 
   render() {
+    if(!this.props.messages) {return null;}
+
     let messageList = this.props.messages.map(function(message, i ) {
       let text = message.text;
       return (

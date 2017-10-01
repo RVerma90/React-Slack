@@ -11,36 +11,49 @@ import Channels from './channels';
 import Modal from 'react-modal';
 
 const customStyles = {
-  content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)'
-  }
+    content: {
+        top: '50%',
+        left: '50%',
+        right: 'auto',
+        bottom: 'auto',
+        marginRight: '-50%',
+        transform: 'translate(-50%, -50%)'
+    }
 }
+
+const DEFAULT_CHANNEL = "general";
 
 class Chat extends Component {
 
     constructor(props) {
         super(props);
-
         this.state = {
             name: null,
-            channels: ['general'],
-            messages: [
-                {
-                    name: 'rahulv90',
-                    time: new Date(),
-                    text: 'Hi there'
-                }, {
-                    name: 'rahulv90',
-                    time: new Date(),
-                    text: 'Welcome to your chat app'
-                }
-            ]
+            channels: [],
+            messages: {},
+            currentChannel: null
         }
+    }
+
+    componentDidMount() {
+      this.createChannel(DEFAULT_CHANNEL);
+
+      let messages = {};
+      messages[DEFAULT_CHANNEL] = [
+          {
+              name: 'rahulv90',
+              time: new Date(),
+              text: 'Hi there'
+          }, {
+              name: 'rahulv90',
+              time: new Date(),
+              text: 'Welcome to your chat app'
+          }
+      ]
+
+      this.setState({
+        messages: messages
+      })
     }
 
     componentDidUpdate() {
@@ -57,43 +70,63 @@ class Chat extends Component {
                 text: text
             }
 
-            this.setState({messages: this.state.messages.concat(message)})
+            let messages = this.state.messages;
+            messages[this.state.currentChannel].push(message);
+            this.setState({messages: messages})
+
             text = '';
             // Using JQuery to set the input field to ''
             $('#msg-input').val('');
         }
     }
 
-    enterName(event) {
-      let newName = $('#new-name').val().trim();
-      if (newName == "") {
-        let randomId = 0;
-        randomId = Math.floor((Math.random() * 99) + 1);
-        newName = "anonymous" + randomId;
+    createChannel(channelName) {
+      if (!(channelName in this.state.channels)) {
+        // Add new channel is it does not exist
+        let messages = this.state.messages;
+        messages[channelName] = [];
+
+        this.setState({
+          channels: this.state.channels.concat(channelName),
+          messages: messages
+        });
+        this.joinChannel(channelName);
       }
-      this.state.name = '';
-      this.setState({name: newName});
+    }
+
+    joinChannel(channelName) {
+      this.setState({currentChannel: channelName});
+    }
+
+    enterName(event) {
+        let newName = $('#new-name').val().trim();
+        if (newName == "") {
+            let randomId = 0;
+            randomId = Math.floor((Math.random() * 99) + 1);
+            newName = "anonymous" + randomId;
+        }
+        this.state.name = '';
+        this.setState({name: newName});
     }
 
     // If user 'enters' instead of clicks for adding Twitter ID
     onEnter(event) {
-      if (event.nativeEvent.keyCode != 13) return;
-      this.enterName();
+        if (event.nativeEvent.keyCode != 13)
+            return;
+        this.enterName();
     }
 
     render() {
         return (
             <div>
-              <Modal
-                isOpen={!this.state.name}
-                style={customStyles} >
+                <Modal isOpen={!this.state.name} style={customStyles}>
 
-                <h2 className="text-center">Enter a Twitter ID</h2>
-                <div>
-                  <input id="new-name" type="text " onKeyPress={this.onEnter.bind(this)}/>
-                  <button className="btn" onClick={this.enterName.bind(this)}>Join</button>
-                </div>
-              </Modal>
+                    <h2 className="text-center">Enter a Twitter ID</h2>
+                    <div>
+                        <input id="new-name" type="text " onKeyPress={this.onEnter.bind(this)}/>
+                        <button className="btn" onClick={this.enterName.bind(this)}>Join</button>
+                    </div>
+                </Modal>
 
                 <div className="header">
                     <div className="team-menu">
@@ -103,19 +136,24 @@ class Chat extends Component {
                     <div className="channel-menu">
                         <span className="channel-menu_name">
                             <span className="channel-menu-prefix">#</span>
-                            general
+                            {this.state.currentChannel}
                         </span>
                     </div>
                 </div>
 
                 <div className="main">
                     <div className="listings">
-                        <Channels channels={this.state.channels}/>
+                        <Channels
+                          channels={this.state.channels}
+                          createChannel={this.createChannel.bind(this)}
+                          currentChannel={this.state.currentChannel}
+                          joinChannel={this.joinChannel.bind(this)}
+                        />
                     </div>
                     <div className="listings_direct-messages"></div>
 
                     <div className="message-history">
-                        <Messages messages={this.state.messages}/>
+                        <Messages messages={this.state.messages[this.state.currentChannel]}/>
                     </div>
                 </div>
 
