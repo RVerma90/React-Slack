@@ -6,7 +6,7 @@ import '../App.css';
 
 // Components
 import Messages from './messages';
-
+import Channels from './channels';
 
 class Chat extends Component {
 
@@ -18,10 +18,11 @@ class Chat extends Component {
 
     this.state = {
       name: 'anonymous',
+      channels: ['general'],
       messages: [{
         name: 'rahulv90',
         time:  new Date(),
-        text: 'Hi there 😘'
+        text: 'Hi there'
       },
       {
         name: 'rahulv90',
@@ -75,18 +76,7 @@ class Chat extends Component {
 
       <div className="main">
           <div className="listings">
-              <div className="listings_channels">
-                  <h2 className="listings_header">Channels</h2>
-                  <ul className="channel_list">
-                      <li className="channel active">
-                          <a className="channel_name">
-                              <span className="unread">0</span>
-                              <span>
-                                  <span className="prefix">#</span>general</span>
-                          </a>
-                      </li>
-                  </ul>
-              </div>
+              <Channels channels={this.state.channels}/>
           </div>
           <div className="listings_direct-messages"></div>
 
